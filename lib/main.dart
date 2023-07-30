@@ -4,9 +4,14 @@ import 'package:provider/provider.dart';
 import 'pages/accountlist.dart';
 import 'pages/appsettings.dart';
 
-void main() {
+void main() async {
+  var p = AppStatePersistency();
+  var appstate = await p.load();
+  appstate.addListener(() {
+    p.save(appstate);
+  });
   runApp(ChangeNotifierProvider(
-      create: (context) => AppState(), child: const MyApp()));
+      create: (context) => appstate, child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

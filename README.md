@@ -1,2 +1,3 @@
-# planet
-Stellar wallet
+# Planet Stellar wallet
+
+This is work in progress
