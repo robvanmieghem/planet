@@ -4,14 +4,23 @@ import 'package:provider/provider.dart';
 import 'pages/accountlist.dart';
 import 'pages/appsettings.dart';
 
-void main() async {
-  var p = AppStatePersistency();
-  var appstate = await p.load();
-  appstate.addListener(() {
-    p.save(appstate);
-  });
+void main() {
   runApp(ChangeNotifierProvider(
-      create: (context) => appstate, child: const MyApp()));
+      create: (context) {
+        var p = AppStatePersistency();
+        var appstate = AppState();
+        p.load().then((value) {
+          appstate.setNetwork(value.testnet);
+        }).whenComplete(() {
+          appstate.addListener(() {
+            p.save(appstate);
+          });
+        });
+
+        return appstate;
+      },
+      //lazy: true,
+      child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
