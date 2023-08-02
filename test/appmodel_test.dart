@@ -17,13 +17,20 @@ void main() {
     });
     test('json deserialization', () {
       var jsonInput = '''
-      {
+      { 
+        "accounts":[{
+          "friendlyName":"Account1",
+          "address":"GA",
+          "secret":"SA",
+          "network":"testnet"
+        }],
         "testnet":true
       }
       ''';
       var json = jsonDecode(jsonInput);
       var appstate = AppState.fromJson(json);
       expect(appstate.testnet, true);
+      expect(appstate.accounts.length, 1);
     });
   });
 }

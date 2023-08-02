@@ -9,8 +9,10 @@ part 'appmodel.g.dart';
 class AppState extends ChangeNotifier {
   AppState();
 
-  final List<String> _accounts = [];
-  UnmodifiableListView<String> get accounts => UnmodifiableListView(_accounts);
+  @JsonKey(name: "accounts", includeFromJson: true, includeToJson: true)
+  // ignore: prefer_final_fields
+  List<Account> _accounts = [];
+  UnmodifiableListView<Account> get accounts => UnmodifiableListView(_accounts);
 
   @JsonKey(defaultValue: '')
   String currentAccount = '';
@@ -38,6 +40,21 @@ class AppState extends ChangeNotifier {
       _$AppStateFromJson(json);
 
   Map<String, dynamic> toJson() => _$AppStateToJson(this);
+}
+
+@JsonSerializable()
+class Account {
+  Account();
+
+  String friendlyName = '';
+  String address = '';
+  String secret = '';
+  String network = '';
+
+  factory Account.fromJson(Map<String, dynamic> json) =>
+      _$AccountFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AccountToJson(this);
 }
 
 /// Uses local storage to persist the application state.
