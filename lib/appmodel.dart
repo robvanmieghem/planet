@@ -43,13 +43,14 @@ class AppState extends ChangeNotifier {
 }
 
 @JsonSerializable()
-class Account {
+class Account extends ChangeNotifier {
   Account();
 
   String friendlyName = '';
+
   String address = '';
   String secret = '';
-  String network = '';
+  bool testnet = false;
 
   factory Account.fromJson(Map<String, dynamic> json) =>
       _$AccountFromJson(json);

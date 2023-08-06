@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:planet/appmodel.dart';
+import 'package:planet/widgets/appbar.dart';
 import 'package:provider/provider.dart';
 import 'pages/accountlist.dart';
 import 'pages/appsettings.dart';
@@ -48,14 +49,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Consumer<AppState>(
-            builder: (context, appstate, child) =>
-                Text('$title${appstate.testnet ? ' - Testnet' : ''}')),
-      ),
+      appBar: createAppBar(context, title),
       drawer: Drawer(
         child: ListView(
           children: [

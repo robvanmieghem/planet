@@ -23,11 +23,11 @@ Account _$AccountFromJson(Map<String, dynamic> json) => Account()
   ..friendlyName = json['friendlyName'] as String
   ..address = json['address'] as String
   ..secret = json['secret'] as String
-  ..network = json['network'] as String;
+  ..testnet = json['testnet'] as bool;
 
 Map<String, dynamic> _$AccountToJson(Account instance) => <String, dynamic>{
       'friendlyName': instance.friendlyName,
       'address': instance.address,
       'secret': instance.secret,
-      'network': instance.network,
+      'testnet': instance.testnet,
     };
