@@ -30,26 +30,36 @@ class AccountListPage extends StatelessWidget {
           ),
         ),
         body: Center(
-            child: Column(
-          children: [
-            Card(
-                child: ListTile(
-              leading: const Icon(Icons.add),
-              title: const Text('Add Account'),
-              titleAlignment: ListTileTitleAlignment.center,
-              onTap: () {
-                //Navigator.pop(context);
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            ChangeNotifierProvider<AccountAddPageModel>(
-                                create: (_) => AccountAddPageModel(
-                                    context.read<AppState>().testnet),
-                                child: AccountAddPage())));
-              },
-            )),
-          ],
-        )));
+            child: Consumer<AppState>(
+                builder: (context, appstate, child) => Column(
+                      children: [
+                        for (var account
+                            in context.read<AppState>().accounts) ...[
+                          Card(
+                              child: ListTile(
+                            title: Text(account.friendlyName),
+                            subtitle: Text(account.address),
+                          ))
+                        ],
+                        Card(
+                            child: ListTile(
+                          leading: const Icon(Icons.add),
+                          title: const Text('Add Account'),
+                          titleAlignment: ListTileTitleAlignment.center,
+                          onTap: () {
+                            //Navigator.pop(context);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ChangeNotifierProvider<
+                                                AccountAddPageModel>(
+                                            create: (_) => AccountAddPageModel(
+                                                appstate.testnet),
+                                            child: const AccountAddPage())));
+                          },
+                        )),
+                      ],
+                    ))));
   }
 }

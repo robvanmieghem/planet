@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:stellar_flutter_sdk/stellar_flutter_sdk.dart' as stellar_sdk;
 
 import '../appmodel.dart';
 import '../widgets/appbar.dart';
@@ -25,8 +26,18 @@ class AccountAddPageModel extends ChangeNotifier {
   bool validate() {
     friendlyNameError = account.friendlyName == '' ? 'Required' : null;
     secretError = account.secret == '' ? 'Required' : null;
+    if (secretError == null) {
+      try {
+        var kp = stellar_sdk.KeyPair.fromSecretSeed(account.secret);
+        secretError = null;
+        account.address = kp.accountId;
+      } on FormatException {
+        secretError = 'Invalid secret';
+      }
+    }
     notifyListeners();
-    return friendlyNameError == '';
+    var valid = friendlyNameError == null && secretError == null;
+    return valid;
   }
 }
 
@@ -66,7 +77,12 @@ class AccountAddPage extends StatelessWidget {
       floatingActionButton: Consumer<AccountAddPageModel>(
           builder: (context, model, child) => FloatingActionButton(
                 tooltip: 'Add',
-                onPressed: () => {model.validate()},
+                onPressed: () {
+                  if (model.validate()) {
+                    context.read<AppState>().addAccount(model.account);
+                    Navigator.of(context).pop();
+                  }
+                },
                 child: const Icon(Icons.add),
               )),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

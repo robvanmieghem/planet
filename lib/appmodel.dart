@@ -13,6 +13,10 @@ class AppState extends ChangeNotifier {
   // ignore: prefer_final_fields
   List<Account> _accounts = [];
   UnmodifiableListView<Account> get accounts => UnmodifiableListView(_accounts);
+  void addAccount(Account value) {
+    _accounts.add(value);
+    notifyListeners();
+  }
 
   @JsonKey(defaultValue: '')
   String currentAccount = '';
