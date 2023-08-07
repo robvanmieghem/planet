@@ -11,7 +11,8 @@ void main() {
         var p = AppStatePersistency();
         var appstate = AppState();
         p.load().then((value) {
-          appstate.setNetwork(value.testnet);
+          appstate.setState(value);
+          appstate.setCurrentAccountByCurrentAccountAddress();
         }).whenComplete(() {
           appstate.addListener(() {
             p.save(appstate);

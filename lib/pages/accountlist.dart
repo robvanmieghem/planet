@@ -3,6 +3,7 @@ import 'package:planet/pages/accountadd.dart';
 import 'package:provider/provider.dart';
 import '../appmodel.dart';
 import '../widgets/appbar.dart';
+import 'accountpage.dart';
 import 'appsettings.dart';
 
 class AccountListPage extends StatelessWidget {
@@ -39,6 +40,15 @@ class AccountListPage extends StatelessWidget {
                               child: ListTile(
                             title: Text(account.friendlyName),
                             subtitle: Text(account.address),
+                            onTap: () {
+                              appstate.switchAccount(account);
+                              Navigator.pop(context);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const AccountPage()));
+                            },
                           ))
                         ],
                         Card(

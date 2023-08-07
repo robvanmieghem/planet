@@ -19,9 +19,20 @@ class AppState extends ChangeNotifier {
   }
 
   @JsonKey(defaultValue: '')
-  String currentAccount = '';
-  void switchAccount(String account) {
+  String currentAccountAddress = '';
+  void setCurrentAccountByCurrentAccountAddress() {
+    switchAccount(_accounts.cast<Account?>().firstWhere(
+        (element) =>
+            element?.address == currentAccountAddress &&
+            element?.testnet == testnet,
+        orElse: () => null));
+  }
+
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  Account? currentAccount;
+  void switchAccount(Account? account) {
     currentAccount = account;
+    currentAccountAddress = account != null ? account.address : '';
     notifyListeners();
   }
 
@@ -40,6 +51,12 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setState(AppState from) {
+    _accounts = from._accounts;
+    currentAccountAddress = from.currentAccountAddress;
+    testnet = from.testnet;
+  }
+
   factory AppState.fromJson(Map<String, dynamic> json) =>
       _$AppStateFromJson(json);
 
@@ -56,10 +73,20 @@ class Account extends ChangeNotifier {
   String secret = '';
   bool testnet = false;
 
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  List<Asset> assets = [];
+
   factory Account.fromJson(Map<String, dynamic> json) =>
       _$AccountFromJson(json);
 
   Map<String, dynamic> toJson() => _$AccountToJson(this);
+}
+
+class Asset extends ChangeNotifier {
+  String code;
+  String issuer;
+  String amount;
+  Asset({required this.code, required this.issuer, required this.amount});
 }
 
 /// Uses local storage to persist the application state.

@@ -10,12 +10,12 @@ AppState _$AppStateFromJson(Map<String, dynamic> json) => AppState()
   .._accounts = (json['accounts'] as List<dynamic>)
       .map((e) => Account.fromJson(e as Map<String, dynamic>))
       .toList()
-  ..currentAccount = json['currentAccount'] as String? ?? ''
+  ..currentAccountAddress = json['currentAccountAddress'] as String? ?? ''
   ..testnet = json['testnet'] as bool? ?? false;
 
 Map<String, dynamic> _$AppStateToJson(AppState instance) => <String, dynamic>{
       'accounts': instance._accounts,
-      'currentAccount': instance.currentAccount,
+      'currentAccountAddress': instance.currentAccountAddress,
       'testnet': instance.testnet,
     };
 
