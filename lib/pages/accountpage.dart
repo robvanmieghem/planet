@@ -10,7 +10,7 @@ class AccountPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    loadAssetsForAccount(context.read<AppState>().currentAccount);
+    loadAssetsForAccount(context.read<Account>());
     return Scaffold(
         appBar: AppBar(
           backgroundColor: getAppBarColor(context),
@@ -25,6 +25,7 @@ class AccountPage extends StatelessWidget {
                 leading: const Icon(Icons.account_balance_wallet),
                 title: const Text('Accounts'),
                 onTap: () {
+                  context.read<AppState>().switchAccount(null);
                   Navigator.pop(context);
                   Navigator.push(
                       context,

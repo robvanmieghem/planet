@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:planet/appmodel.dart';
+import 'package:planet/pages/accountpage.dart';
 import 'package:planet/widgets/appbar.dart';
 import 'package:provider/provider.dart';
 import 'pages/accountlist.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Home'),
+      home: const MyHomePage(title: 'Loading'),
     );
   }
 }
@@ -46,9 +47,28 @@ class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
-
   @override
   Widget build(BuildContext context) {
+    var appstate = context.read<AppState>();
+    void appstateListener() {
+      if (appstate.loaded) {
+        appstate.removeListener(appstateListener);
+        Navigator.pop(context);
+        if (appstate.currentAccount != null) {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ChangeNotifierProvider<Account>(
+                      create: (context) => appstate.currentAccount!,
+                      child: const AccountPage())));
+        } else {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const AccountListPage()));
+        }
+      }
+    }
+
+    appstate.addListener(appstateListener);
     return Scaffold(
       appBar: createSimpleAppBar(context, title),
       drawer: Drawer(
@@ -84,30 +104,14 @@ class MyHomePage extends StatelessWidget {
           ],
         ),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Consumer<AppState>(
-                builder: (context, appstate, child) => Text(
-                      '${appstate.counter}',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    )),
+            CircularProgressIndicator(),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.read<AppState>().increment();
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

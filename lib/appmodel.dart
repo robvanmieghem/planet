@@ -44,19 +44,16 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  @JsonKey(includeToJson: false, includeFromJson: false)
-  int counter = 0;
-
-  void increment() {
-    counter += 1;
-    notifyListeners();
-  }
-
   void setState(AppState from) {
     _accounts = from._accounts;
     currentAccountAddress = from.currentAccountAddress;
     testnet = from.testnet;
+    loaded = true;
   }
+
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  //Indicates wheter the state has been loaded from persistent storage
+  bool loaded = false;
 
   factory AppState.fromJson(Map<String, dynamic> json) =>
       _$AppStateFromJson(json);
