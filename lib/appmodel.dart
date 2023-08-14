@@ -74,7 +74,13 @@ class Account extends ChangeNotifier {
   bool testnet = false;
 
   @JsonKey(includeToJson: false, includeFromJson: false)
-  List<Asset> assets = [];
+  List<Asset> _assets = [];
+  UnmodifiableListView<Asset> get assets => UnmodifiableListView(_assets);
+
+  set assets(List<Asset> newAssets) {
+    _assets = newAssets;
+    notifyListeners();
+  }
 
   factory Account.fromJson(Map<String, dynamic> json) =>
       _$AccountFromJson(json);

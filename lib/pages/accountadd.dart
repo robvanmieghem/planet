@@ -47,7 +47,7 @@ class AccountAddPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: createAppBar(context, 'Add Account'),
+      appBar: createSimpleAppBar(context, 'Add Account'),
       body: Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
           Padding(

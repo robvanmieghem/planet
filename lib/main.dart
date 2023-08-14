@@ -50,7 +50,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: createAppBar(context, title),
+      appBar: createSimpleAppBar(context, title),
       drawer: Drawer(
         child: ListView(
           children: [

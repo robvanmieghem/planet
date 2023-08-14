@@ -3,11 +3,15 @@ import 'package:provider/provider.dart';
 
 import '../appmodel.dart';
 
-AppBar createAppBar(BuildContext context, String title) {
+AppBar createSimpleAppBar(BuildContext context, String title) {
   return AppBar(
-    backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+    backgroundColor: getAppBarColor(context),
     title: Consumer<AppState>(
         builder: (context, appstate, child) =>
             Text('$title${appstate.testnet ? ' - Testnet' : ''}')),
   );
+}
+
+Color getAppBarColor(BuildContext context) {
+  return Theme.of(context).colorScheme.inversePrimary;
 }

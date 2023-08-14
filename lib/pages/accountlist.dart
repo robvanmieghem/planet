@@ -12,7 +12,7 @@ class AccountListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: createAppBar(context, 'Accounts'),
+        appBar: createSimpleAppBar(context, 'Accounts'),
         drawer: Drawer(
           child: ListView(
             children: [

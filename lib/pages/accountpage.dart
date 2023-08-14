@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../appmodel.dart';
+import '../stellar/stellar.dart';
+import '../widgets/appbar.dart';
 import 'accountlist.dart';
-
-class AccountPageModel extends ChangeNotifier {
-  Account account;
-
-  AccountPageModel({required this.account});
-}
 
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    loadAssetsForAccount(context.read<AppState>().currentAccount);
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          backgroundColor: getAppBarColor(context),
           title: Consumer<AppState>(
               builder: (context, appstate, child) => Text(
                   '${appstate.currentAccount?.friendlyName}${appstate.testnet ? ' - Testnet' : ''}')),
@@ -40,15 +37,13 @@ class AccountPage extends StatelessWidget {
         ),
         body: Center(
             child: Consumer<AppState>(
-                builder: (context, appstate, child) => Column(
+                builder: (context, appstate, child) => ListView(
                       children: [
-                        const Row(
-                          children: [Text('Assets')],
-                        ),
                         for (var asset in appstate.currentAccount!.assets) ...[
                           Card(
                               child: ListTile(
                             title: Text(asset.code),
+                            trailing: Text(asset.amount),
                           ))
                         ],
                       ],
