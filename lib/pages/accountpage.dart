@@ -14,9 +14,9 @@ class AccountPage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: getAppBarColor(context),
-          title: Consumer<AppState>(
-              builder: (context, appstate, child) => Text(
-                  '${appstate.currentAccount?.friendlyName}${appstate.testnet ? ' - Testnet' : ''}')),
+          title: Consumer<Account>(
+              builder: (context, account, child) => Text(
+                  '${account.friendlyName}${account.testnet ? ' - Testnet' : ''}')),
         ),
         drawer: Drawer(
           child: ListView(
@@ -36,10 +36,10 @@ class AccountPage extends StatelessWidget {
           ),
         ),
         body: Center(
-            child: Consumer<AppState>(
-                builder: (context, appstate, child) => ListView(
+            child: Consumer<Account>(
+                builder: (context, account, child) => ListView(
                       children: [
-                        for (var asset in appstate.currentAccount!.assets) ...[
+                        for (var asset in account.assets) ...[
                           Card(
                               child: ListTile(
                             title: Text(asset.code),

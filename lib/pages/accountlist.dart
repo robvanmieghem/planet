@@ -47,7 +47,9 @@ class AccountListPage extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
-                                          const AccountPage()));
+                                          ChangeNotifierProvider<Account>(
+                                              create: (context) => account,
+                                              child: const AccountPage())));
                             },
                           ))
                         ],
