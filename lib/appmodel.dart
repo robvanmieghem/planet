@@ -91,6 +91,8 @@ class Asset extends ChangeNotifier {
   String issuer;
   Decimal amount;
   Asset({required this.code, required this.issuer, required this.amount});
+  bool isNative() => code == 'XLM' && issuer == '';
+  String get fullAssetCode => '$code:$issuer';
 }
 
 /// Uses local storage to persist the application state.

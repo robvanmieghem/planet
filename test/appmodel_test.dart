@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:decimal/decimal.dart';
 import 'package:test/test.dart';
 import 'package:planet/appmodel.dart';
 
@@ -31,6 +32,16 @@ void main() {
       var appstate = AppState.fromJson(json);
       expect(appstate.testnet, true);
       expect(appstate.accounts.length, 1);
+    });
+  });
+  group('Asset', () {
+    test('fullAssetCode', () {
+      final asset = Asset(
+          code: 'USDC',
+          issuer: 'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN',
+          amount: Decimal.one);
+      expect(asset.fullAssetCode,
+          'USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN');
     });
   });
 }

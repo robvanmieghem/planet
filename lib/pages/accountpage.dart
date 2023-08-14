@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planet/widgets/icons.dart';
 import 'package:provider/provider.dart';
 import '../appmodel.dart';
 import '../stellar/stellar.dart';
@@ -45,6 +46,9 @@ class AccountPage extends StatelessWidget {
                               child: ListTile(
                             title: Text(asset.code),
                             trailing: Text(asset.amount.toString()),
+                            leading: asset.isNative()
+                                ? const Icon(PlanetIcon.xlmIcon)
+                                : const Icon(Icons.radio_button_unchecked),
                           ))
                         ],
                       ],
