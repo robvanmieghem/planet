@@ -38,6 +38,7 @@ dependencies:
   json_annotation: ^4.8.1
   localstorage: ^4.0.1+4
   stellar_flutter_sdk: ^1.6.1
+  decimal: ^2.3.3
 
 dev_dependencies:
   flutter_test:

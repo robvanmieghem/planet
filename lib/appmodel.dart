@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:collection';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:localstorage/localstorage.dart';
+import 'package:decimal/decimal.dart';
 
 part 'appmodel.g.dart';
 
@@ -91,7 +92,7 @@ class Account extends ChangeNotifier {
 class Asset extends ChangeNotifier {
   String code;
   String issuer;
-  String amount;
+  Decimal amount;
   Asset({required this.code, required this.issuer, required this.amount});
 }
 

@@ -43,7 +43,7 @@ class AccountPage extends StatelessWidget {
                           Card(
                               child: ListTile(
                             title: Text(asset.code),
-                            trailing: Text(asset.amount),
+                            trailing: Text(asset.amount.toString()),
                           ))
                         ],
                       ],
