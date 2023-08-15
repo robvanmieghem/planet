@@ -48,7 +48,10 @@ class AccountPage extends StatelessWidget {
                             trailing: Text(asset.amount.toString()),
                             leading: asset.isNative()
                                 ? const Icon(PlanetIcon.xlmIcon)
-                                : const Icon(Icons.radio_button_unchecked),
+                                : asset.info.image != null
+                                    ? Image(
+                                        image: NetworkImage(asset.info.image!))
+                                    : const Icon(Icons.radio_button_unchecked),
                           ))
                         ],
                       ],

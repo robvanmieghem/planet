@@ -77,6 +77,11 @@ class Account extends ChangeNotifier {
 
   set assets(List<Asset> newAssets) {
     _assets = newAssets;
+    for (var asset in newAssets) {
+      asset.addListener(() {
+        notifyListeners();
+      });
+    }
     notifyListeners();
   }
 
@@ -90,9 +95,30 @@ class Asset extends ChangeNotifier {
   String code;
   String issuer;
   Decimal amount;
-  Asset({required this.code, required this.issuer, required this.amount});
+  bool testnet;
+  AssetInfo? _info;
+  Asset(
+      {required this.code,
+      required this.issuer,
+      required this.amount,
+      this.testnet = false});
   bool isNative() => code == 'XLM' && issuer == '';
   String get fullAssetCode => '$code:$issuer';
+
+  AssetInfo get info => _info ?? AssetInfo(fullAssetCode: fullAssetCode);
+  set info(AssetInfo value) {
+    _info = value;
+    notifyListeners();
+  }
+}
+
+class AssetInfo {
+  String fullAssetCode;
+  bool testnet;
+  String? image;
+  String? name;
+  String? domain;
+  AssetInfo({required this.fullAssetCode, this.testnet = false});
 }
 
 /// Uses local storage to persist the application state.

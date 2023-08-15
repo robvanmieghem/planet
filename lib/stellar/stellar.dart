@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:decimal/decimal.dart';
 import 'package:planet/appmodel.dart';
 import 'package:stellar_flutter_sdk/stellar_flutter_sdk.dart' as stellar_sdk;
+import 'package:stellar_flutter_sdk/src/sep/0001/stellar_toml.dart';
 
 void loadAssetsForAccount(Account? account) {
   var sdk = account!.testnet
@@ -21,13 +22,47 @@ void loadAssetsForAccount(Account? account) {
           assets.add(Asset(
               code: balance.assetCode!,
               issuer: balance.assetIssuer!,
-              amount: Decimal.parse(balance.balance)));
-        default: // TODO: Handle liquidity pool shares
+              amount: Decimal.parse(balance.balance),
+              testnet: account.testnet));
+        default: // liquidity pool shares are ignorted for now
       }
+    }
+    account.assets = assets;
+    for (var asset in assets) {
+      if (!asset.isNative()) loadAssetInfo(asset);
     }
     account.assets = assets;
   }).onError<SocketException>((error, stackTrace) {
     print(error);
+  }).onError((error, stackTrace) {
+    print(error);
+  });
+}
+
+void loadAssetInfo(Asset asset) {
+  var sdk = asset.testnet
+      ? stellar_sdk.StellarSDK.TESTNET
+      : stellar_sdk.StellarSDK.PUBLIC;
+  sdk.accounts.account(asset.issuer).then((account) {
+    if (account.homeDomain == null) {
+      return;
+    }
+    StellarToml.fromDomain(account.homeDomain!).then((value) {
+      if (value.currencies == null) {
+        return;
+      }
+      for (var c in value.currencies!) {
+        if (c.code == asset.code && c.issuer == asset.issuer) {
+          var info = AssetInfo(
+              fullAssetCode: asset.fullAssetCode, testnet: asset.testnet);
+          info.domain = account.homeDomain;
+          info.name = c.name;
+          info.image = c.image;
+          asset.info = info;
+          return;
+        }
+      }
+    });
   }).onError((error, stackTrace) {
     print(error);
   });
