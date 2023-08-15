@@ -44,8 +44,10 @@ class AccountPage extends StatelessWidget {
                         for (var asset in account.assets) ...[
                           Card(
                               child: ListTile(
-                            title: Text(asset.code),
-                            trailing: Text(asset.amount.toString()),
+                            title: Text(asset.info.name ?? asset.code),
+                            subtitle: Text(
+                                '${asset.code}${asset.info.domain != null ? " ( ${asset.info.domain} )" : ""}'),
+                            trailing: Text('${asset.amount} ${asset.code}'),
                             leading: asset.isNative()
                                 ? const Icon(PlanetIcon.xlmIcon)
                                 : asset.info.image != null

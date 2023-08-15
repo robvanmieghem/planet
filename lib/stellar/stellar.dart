@@ -29,7 +29,7 @@ void loadAssetsForAccount(Account? account) {
     }
     account.assets = assets;
     for (var asset in assets) {
-      if (!asset.isNative()) loadAssetInfo(asset);
+      loadAssetInfo(asset);
     }
     account.assets = assets;
   }).onError<SocketException>((error, stackTrace) {
@@ -40,6 +40,13 @@ void loadAssetsForAccount(Account? account) {
 }
 
 void loadAssetInfo(Asset asset) {
+  if (asset.isNative()) {
+    var info = AssetInfo(fullAssetCode: asset.fullAssetCode);
+    info.name = "Lumens";
+    info.domain = 'stellar.org';
+    asset.info = info;
+    return;
+  }
   var sdk = asset.testnet
       ? stellar_sdk.StellarSDK.TESTNET
       : stellar_sdk.StellarSDK.PUBLIC;
