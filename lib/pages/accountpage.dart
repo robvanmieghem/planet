@@ -22,6 +22,37 @@ class AccountPage extends StatelessWidget {
         drawer: Drawer(
           child: ListView(
             children: [
+              DrawerHeader(
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.inversePrimary),
+                  child: Consumer<Account>(
+                      builder: (context, account, child) => Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context)
+                                        .listTileTheme
+                                        .subtitleTextStyle,
+                                    softWrap: false,
+                                    textWidthBasis: TextWidthBasis.parent,
+                                    '${account.address}'),
+                                FilledButton.tonal(
+                                    onPressed: () {},
+                                    child: const Row(children: [
+                                      Text('Send'),
+                                      Spacer(),
+                                      Icon(Icons.arrow_upward),
+                                    ])),
+                                FilledButton.tonal(
+                                    onPressed: () {},
+                                    child: const Row(children: [
+                                      Text('Receive'),
+                                      Spacer(),
+                                      Icon(Icons.arrow_downward)
+                                    ]))
+                              ]))),
               ListTile(
                 leading: const Icon(Icons.account_balance_wallet),
                 title: const Text('Accounts'),
