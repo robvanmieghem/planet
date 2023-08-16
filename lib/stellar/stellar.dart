@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:decimal/decimal.dart';
 import 'package:planet/appmodel.dart';
 import 'package:stellar_flutter_sdk/stellar_flutter_sdk.dart' as stellar_sdk;
-import 'package:stellar_flutter_sdk/src/sep/0001/stellar_toml.dart';
 
 void loadAssetsForAccount(Account? account) {
   var sdk = account!.testnet
@@ -28,7 +27,7 @@ void loadAssetsForAccount(Account? account) {
               issuer: balance.assetIssuer!,
               amount: Decimal.parse(balance.balance),
               testnet: account.testnet));
-        default: // liquidity pool shares are ignorted for now
+        default: // liquidity pool shares are ignored for now
       }
     }
     account.assets = assets;
@@ -58,7 +57,7 @@ void loadAssetInfo(Asset asset) {
     if (account.homeDomain == null) {
       return;
     }
-    StellarToml.fromDomain(account.homeDomain!).then((value) {
+    stellar_sdk.StellarToml.fromDomain(account.homeDomain!).then((value) {
       if (value.currencies == null) {
         return;
       }
