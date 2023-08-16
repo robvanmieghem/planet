@@ -5,6 +5,7 @@ import '../appmodel.dart';
 import '../stellar/stellar.dart';
 import '../widgets/appbar.dart';
 import 'accountlist.dart';
+import 'assetpage.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
@@ -75,6 +76,15 @@ class AccountPage extends StatelessWidget {
                         for (var asset in account.assets) ...[
                           Card(
                               child: ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ChangeNotifierProvider<Asset>.value(
+                                              value: asset,
+                                              child: const AssetPage())));
+                            },
                             title: Text(asset.info.name ?? asset.code),
                             subtitle: Text(
                                 '${asset.code}${asset.info.domain != null ? " ( ${asset.info.domain} )" : ""}'),
