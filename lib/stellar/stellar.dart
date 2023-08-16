@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:decimal/decimal.dart';
+import 'package:logger/logger.dart';
 import 'package:planet/appmodel.dart';
 import 'package:stellar_flutter_sdk/stellar_flutter_sdk.dart' as stellar_sdk;
 
+Logger logger = Logger();
 void loadAssetsForAccount(Account? account) {
   var sdk = account!.testnet
       ? stellar_sdk.StellarSDK.TESTNET
@@ -72,8 +74,11 @@ void loadAssetInfo(Asset asset) {
           return;
         }
       }
+    }).onError((error, stackTrace) {
+      logger.i('Unable to get asset toml  for ${asset.fullAssetCode} : $error');
     });
   }).onError((error, stackTrace) {
-    print(error);
+    logger.i(
+        'Unable to get issuer account info for ${asset.fullAssetCode} : $error');
   });
 }
