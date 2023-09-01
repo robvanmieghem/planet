@@ -70,6 +70,7 @@ void loadAssetInfo(Asset asset) {
           info.domain = account.homeDomain;
           info.name = c.name;
           info.image = c.image;
+          info.description = c.desc;
           asset.info = info;
           return;
         }

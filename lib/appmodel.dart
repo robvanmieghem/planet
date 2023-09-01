@@ -118,6 +118,7 @@ class AssetInfo {
   String? image;
   String? name;
   String? domain;
+  String? description;
   AssetInfo({required this.fullAssetCode, this.testnet = false});
 }
 

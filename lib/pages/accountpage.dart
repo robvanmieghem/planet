@@ -38,7 +38,7 @@ class AccountPage extends StatelessWidget {
                                         .subtitleTextStyle,
                                     softWrap: false,
                                     textWidthBasis: TextWidthBasis.parent,
-                                    '${account.address}'),
+                                    account.address),
                                 FilledButton.tonal(
                                     onPressed: () {},
                                     child: const Row(children: [
@@ -88,7 +88,7 @@ class AccountPage extends StatelessWidget {
                             title: Text(asset.info.name ?? asset.code),
                             subtitle: Text(
                                 '${asset.code}${asset.info.domain != null ? " ( ${asset.info.domain} )" : ""}'),
-                            trailing: Text('${asset.amount} ${asset.code}'),
+                            trailing: Text('${asset.amount}'),
                             leading: asset.isNative()
                                 ? const Icon(PlanetIcon.xlmIcon)
                                 : asset.info.image != null
