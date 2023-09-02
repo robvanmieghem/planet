@@ -30,7 +30,21 @@ class AssetPage extends StatelessWidget {
                       if (asset.info.description != null)
                         Padding(
                             padding: const EdgeInsets.all(10.0),
-                            child: Text(asset.info.description!))
+                            child: Text(asset.info.description!)),
+                      Row(children: [
+                        FilledButton.tonal(
+                            onPressed: () {},
+                            child: const Row(children: [
+                              Text('Send'),
+                              Icon(Icons.arrow_upward)
+                            ])),
+                        FilledButton.tonal(
+                            onPressed: () {},
+                            child: const Row(children: [
+                              Text('Swap'),
+                              Icon(Icons.swap_horiz)
+                            ])),
+                      ]),
                     ]))));
   }
 }
