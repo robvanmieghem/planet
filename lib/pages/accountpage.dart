@@ -42,13 +42,6 @@ class AccountPage extends StatelessWidget {
                                 FilledButton.tonal(
                                     onPressed: () {},
                                     child: const Row(children: [
-                                      Text('Send'),
-                                      Spacer(),
-                                      Icon(Icons.arrow_upward),
-                                    ])),
-                                FilledButton.tonal(
-                                    onPressed: () {},
-                                    child: const Row(children: [
                                       Text('Receive'),
                                       Spacer(),
                                       Icon(Icons.arrow_downward)
