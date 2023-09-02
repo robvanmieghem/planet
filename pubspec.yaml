@@ -54,7 +54,23 @@ dev_dependencies:
   test: ^1.24.1
   build_runner: ^2.4.6
   json_serializable: ^6.7.1
+  flutter_launcher_icons: ^0.13.1
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/planeticons/planet-256.png"
+  web:
+    generate: true
+    image_path: "assets/planeticons/planet-256.png"
+  windows:
+    generate: true
+    image_path: "assets/planeticons/planet-256.png"
+    icon_size: 256 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/planeticons/planet-256.png"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
