@@ -6,11 +6,15 @@ import 'package:planet/appmodel.dart';
 import 'package:stellar_flutter_sdk/stellar_flutter_sdk.dart' as stellar_sdk;
 
 Logger logger = Logger();
-void loadAssetsForAccount(Account? account) {
-  var sdk = account!.testnet
+
+stellar_sdk.StellarSDK getSDK(bool testnet) {
+  return testnet
       ? stellar_sdk.StellarSDK.TESTNET
       : stellar_sdk.StellarSDK.PUBLIC;
-  sdk.accounts.account(account.address).then((value) {
+}
+
+void loadAssetsForAccount(Account? account) {
+  getSDK(account!.testnet).accounts.account(account.address).then((value) {
     var assets = <Asset>[];
 
     for (var balance in value.balances) {
@@ -38,9 +42,10 @@ void loadAssetsForAccount(Account? account) {
     }
     account.assets = assets;
   }).onError<SocketException>((error, stackTrace) {
-    print(error);
+    logger.i('Unable load assets for ${account.address} : $error');
+    //TODO: propagate to the frontend
   }).onError((error, stackTrace) {
-    print(error);
+    logger.i('Unable load assets for ${account.address} : $error');
   });
 }
 
@@ -52,10 +57,7 @@ void loadAssetInfo(Asset asset) {
     asset.info = info;
     return;
   }
-  var sdk = asset.testnet
-      ? stellar_sdk.StellarSDK.TESTNET
-      : stellar_sdk.StellarSDK.PUBLIC;
-  sdk.accounts.account(asset.issuer).then((account) {
+  getSDK(asset.testnet).accounts.account(asset.issuer).then((account) {
     if (account.homeDomain == null) {
       return;
     }
@@ -82,4 +84,9 @@ void loadAssetInfo(Asset asset) {
     logger.i(
         'Unable to get issuer account info for ${asset.fullAssetCode} : $error');
   });
+}
+
+Future<void> send(String destination, Decimal amount, Asset asset, String? memo,
+    Account from) async {
+  await Future.delayed(const Duration(seconds: 5));
 }

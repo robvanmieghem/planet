@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:planet/pages/sendpage.dart';
 import 'package:provider/provider.dart';
 import '../appmodel.dart';
 import '../widgets/appbar.dart';
@@ -38,7 +39,17 @@ class AssetPage extends StatelessWidget {
                                 child: Text(asset.info.description!)),
                           Row(children: [
                             FilledButton.tonal(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ChangeNotifierProvider<
+                                                      SendPageModel>(
+                                                  create: (_) => SendPageModel(
+                                                      asset: asset),
+                                                  child: SendPage())));
+                                },
                                 child: const Row(children: [
                                   Text('Send'),
                                   Icon(Icons.arrow_upward)

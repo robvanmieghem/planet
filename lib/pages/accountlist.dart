@@ -34,8 +34,7 @@ class AccountListPage extends StatelessWidget {
             child: Consumer<AppState>(
                 builder: (context, appstate, child) => Column(
                       children: [
-                        for (var account
-                            in context.read<AppState>().accounts) ...[
+                        for (var account in appstate.accounts) ...[
                           Card(
                               child: ListTile(
                             title: Text(account.friendlyName),
