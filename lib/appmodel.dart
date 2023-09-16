@@ -13,7 +13,9 @@ class AppState extends ChangeNotifier {
   @JsonKey(name: "accounts", includeFromJson: true, includeToJson: true)
   // ignore: prefer_final_fields
   List<Account> _accounts = [];
-  UnmodifiableListView<Account> get accounts => UnmodifiableListView(_accounts);
+  UnmodifiableListView<Account> get accounts => UnmodifiableListView(
+      _accounts.where((element) => element.testnet == testnet));
+
   void addAccount(Account value) {
     _accounts.add(value);
     notifyListeners();
