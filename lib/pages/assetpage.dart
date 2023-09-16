@@ -30,9 +30,10 @@ class AssetPage extends StatelessWidget {
                                                   asset.info.image!))
                                           : null,
                                   trailing: Text('${asset.amount}'))),
-                          Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text('Issuer: ${asset.issuer}')),
+                          if (!asset.isNative())
+                            Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text('Issuer: ${asset.issuer}')),
                           if (asset.info.description != null)
                             Padding(
                                 padding: const EdgeInsets.all(10.0),
