@@ -8,6 +8,7 @@ import '../stellar/stellar.dart';
 import '../widgets/appbar.dart';
 import 'accountlist.dart';
 import 'assetpage.dart';
+import 'receive.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
@@ -42,7 +43,14 @@ class AccountPage extends StatelessWidget {
                                     textWidthBasis: TextWidthBasis.parent,
                                     account.address),
                                 FilledButton.tonal(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const ReceivePage()));
+                                    },
                                     child: const Row(children: [
                                       Text('Receive'),
                                       Spacer(),
