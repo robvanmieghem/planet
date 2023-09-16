@@ -15,6 +15,7 @@ stellar_sdk.StellarSDK getSDK(bool testnet) {
 
 void loadAssetsForAccount(Account? account) {
   getSDK(account!.testnet).accounts.account(account.address).then((value) {
+    account.exists = true;
     var assets = <Asset>[];
 
     for (var balance in value.balances) {
@@ -44,8 +45,16 @@ void loadAssetsForAccount(Account? account) {
   }).onError<SocketException>((error, stackTrace) {
     logger.i('Unable load assets for ${account.address} : $error');
     //TODO: propagate to the frontend
+  }).onError<stellar_sdk.ErrorResponse>((error, stackTrace) {
+    if (error.code == 404) {
+      account.exists = false;
+      return;
+    }
+    logger.i('horizon responded with an error ${account.address} : $error');
+    //TODO: propagate to the frontend
   }).onError((error, stackTrace) {
-    logger.i('Unable load assets for ${account.address} : $error');
+    logger.i(
+        'Unable load assets for ${account.address} (${error.runtimeType}): $error');
   });
 }
 

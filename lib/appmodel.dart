@@ -66,6 +66,13 @@ class AppState extends ChangeNotifier {
 @JsonSerializable()
 class Account extends ChangeNotifier {
   Account();
+  @JsonKey(includeToJson: false, includeFromJson: false)
+  bool _exists = true;
+  bool get exists => _exists;
+  set exists(value) {
+    _exists = value;
+    notifyListeners();
+  }
 
   String friendlyName = '';
 
