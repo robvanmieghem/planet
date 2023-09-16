@@ -20,8 +20,20 @@ class AccountAddPageModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool createNew = true;
+  void setCreateNew(bool? value) {
+    createNew = value ?? false;
+    notifyListeners();
+  }
+
   String? friendlyNameError;
   String? secretError;
+
+  void createNewAccountIfNeeded() {
+    if (!createNew) return;
+    var kp = stellar_sdk.KeyPair.random();
+    setSecret(kp.secretSeed);
+  }
 
   bool validate() {
     friendlyNameError = account.friendlyName == '' ? 'Required' : null;
@@ -49,35 +61,55 @@ class AccountAddPage extends StatelessWidget {
     return Scaffold(
       appBar: createSimpleAppBar(context, 'Add Account'),
       body: Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-              child: Consumer<AccountAddPageModel>(
-                  builder: (context, model, child) => TextField(
+        child: Consumer<AccountAddPageModel>(
+            builder: (context, model, child) =>
+                Column(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 5, vertical: 5),
+                      child: TextField(
                         decoration: InputDecoration(
                             labelText: 'Name',
                             border: const OutlineInputBorder(),
                             errorText: model.friendlyNameError),
                         autocorrect: false,
                         onChanged: (value) => {model.setFriendlyName(value)},
-                      ))),
-          Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-              child: Consumer<AccountAddPageModel>(
-                  builder: (context, model, child) => TextField(
-                        decoration: InputDecoration(
-                            labelText: 'Secret',
-                            border: const OutlineInputBorder(),
-                            errorText: model.secretError),
-                        autocorrect: false,
-                        onChanged: (value) => {model.setSecret(value)},
-                      )))
-        ]),
+                      )),
+                  ListTile(
+                    title: const Text('Create new'),
+                    leading: Radio(
+                      value: true,
+                      groupValue: model.createNew,
+                      onChanged: (value) => model.setCreateNew(true),
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text('Import existing'),
+                    leading: Radio(
+                      value: false,
+                      groupValue: model.createNew,
+                      onChanged: (value) => model.setCreateNew(false),
+                    ),
+                  ),
+                  if (!model.createNew)
+                    Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 5, vertical: 5),
+                        child: TextField(
+                          decoration: InputDecoration(
+                              labelText: 'Secret',
+                              border: const OutlineInputBorder(),
+                              errorText: model.secretError),
+                          autocorrect: false,
+                          onChanged: (value) => {model.setSecret(value)},
+                        ))
+                ])),
       ),
       floatingActionButton: Consumer<AccountAddPageModel>(
           builder: (context, model, child) => FloatingActionButton(
                 tooltip: 'Add',
                 onPressed: () {
+                  model.createNewAccountIfNeeded();
                   if (model.validate()) {
                     context.read<AppState>().addAccount(model.account);
                     Navigator.of(context).pop();
