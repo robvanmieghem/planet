@@ -171,7 +171,7 @@ class SendPage extends StatelessWidget {
                                 model.memo,
                                 context.read<AppState>().currentAccount!)
                             .then((result) {
-                          Navigator.of(context).pop();
+                          Navigator.pop(context, 'sent');
                         }),
                       ),
                     );

@@ -97,5 +97,31 @@ void loadAssetInfo(Asset asset) {
 
 Future<void> send(String destination, Decimal amount, Asset asset, String? memo,
     Account from) async {
-  await Future.delayed(const Duration(seconds: 5));
+  var sdk = getSDK(from.testnet);
+  stellar_sdk.AccountResponse sender = await sdk.accounts.account(from.address);
+
+  // Build the transaction to send 100 XLM native payment from sender to destination
+  stellar_sdk.Transaction transaction = stellar_sdk.TransactionBuilder(sender)
+      .addOperation(stellar_sdk.PaymentOperationBuilder(
+              destination,
+              asset.isNative()
+                  ? stellar_sdk.Asset.NATIVE
+                  : stellar_sdk.Asset.createNonNativeAsset(
+                      asset.code, asset.issuer),
+              amount.toString())
+          .build())
+      .build();
+
+  // Sign the transaction with the sender's key pair.
+  var kp = stellar_sdk.KeyPair.fromSecretSeed(from.secret);
+  transaction.sign(kp,
+      from.testnet ? stellar_sdk.Network.TESTNET : stellar_sdk.Network.PUBLIC);
+
+  // Submit the transaction to the stellar network.
+  stellar_sdk.SubmitTransactionResponse response =
+      await sdk.submitTransaction(transaction);
+  if (!response.success) {
+    logger.e('Failed to submit payment: $response');
+    //TODO: propagate error
+  }
 }

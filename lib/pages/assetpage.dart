@@ -49,7 +49,15 @@ class AssetPage extends StatelessWidget {
                                                       SendPageModel>(
                                                   create: (_) => SendPageModel(
                                                       asset: asset),
-                                                  child: SendPage())));
+                                                  child: SendPage()))).then(
+                                      (result) {
+                                    //TODO: No clue why but the result is always null
+                                    print(result);
+                                    if (!context.mounted) return;
+                                    if (result == 'sent') {
+                                      Navigator.pop(context);
+                                    }
+                                  });
                                 },
                                 child: const Row(children: [
                                   Text('Send'),
