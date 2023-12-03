@@ -41,6 +41,7 @@ dependencies:
   decimal: ^2.3.3
   logger: ^2.0.1
   future_progress_dialog: ^0.2.1
+  collection: ^1.17.2
 
 dev_dependencies:
   flutter_test:

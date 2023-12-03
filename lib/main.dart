@@ -58,8 +58,8 @@ class MyHomePage extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => ChangeNotifierProvider<Account>(
-                      create: (context) => appstate.currentAccount!,
+                  builder: (context) => ChangeNotifierProvider<Account>.value(
+                      value: appstate.currentAccount!,
                       child: const AccountPage())));
         } else {
           Navigator.of(context).push(

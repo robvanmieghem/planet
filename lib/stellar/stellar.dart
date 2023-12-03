@@ -4,6 +4,7 @@ import 'package:decimal/decimal.dart';
 import 'package:logger/logger.dart';
 import 'package:planet/appmodel.dart';
 import 'package:stellar_flutter_sdk/stellar_flutter_sdk.dart' as stellar_sdk;
+import 'package:collection/collection.dart';
 
 Logger logger = Logger();
 
@@ -16,32 +17,33 @@ stellar_sdk.StellarSDK getSDK(bool testnet) {
 void loadAssetsForAccount(Account? account) {
   getSDK(account!.testnet).accounts.account(account.address).then((value) {
     account.exists = true;
-    var assets = <Asset>[];
 
     for (var balance in value.balances) {
+      Asset? asset;
       switch (balance.assetType) {
         case stellar_sdk.Asset.TYPE_NATIVE:
-          assets.insert(
-              0,
-              Asset(
-                  code: 'XLM',
-                  issuer: '',
-                  amount: Decimal.parse(balance.balance)));
+          asset = Asset(
+              code: 'XLM', issuer: '', amount: Decimal.parse(balance.balance));
         case stellar_sdk.Asset.TYPE_CREDIT_ALPHANUM12:
         case stellar_sdk.Asset.TYPE_CREDIT_ALPHANUM4:
-          assets.add(Asset(
+          asset = Asset(
               code: balance.assetCode!,
               issuer: balance.assetIssuer!,
               amount: Decimal.parse(balance.balance),
-              testnet: account.testnet));
-        default: // liquidity pool shares are ignored for now
+              testnet: account.testnet);
+        default:
+          continue;
+      }
+
+      Asset? existing = account.assets.firstWhereOrNull(
+          (element) => element.fullAssetCode == asset!.fullAssetCode);
+      if (existing != null) {
+        existing.setAmount(asset.amount);
+      } else {
+        account.addAsset(asset);
+        loadAssetInfo(asset);
       }
     }
-    account.assets = assets;
-    for (var asset in assets) {
-      loadAssetInfo(asset);
-    }
-    account.assets = assets;
   }).onError<SocketException>((error, stackTrace) {
     logger.i('Unable load assets for ${account.address} : $error');
     //TODO: propagate to the frontend
@@ -124,4 +126,5 @@ Future<void> send(String destination, Decimal amount, Asset asset, String? memo,
     logger.e('Failed to submit payment: $response');
     //TODO: propagate error
   }
+  loadAssetsForAccount(from);
 }

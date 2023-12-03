@@ -94,6 +94,18 @@ class Account extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addAsset(Asset asset) {
+    if (asset.isNative()) {
+      _assets.insert(0, asset);
+    } else {
+      _assets.add(asset);
+    }
+    asset.addListener(() {
+      notifyListeners();
+    });
+    notifyListeners();
+  }
+
   factory Account.fromJson(Map<String, dynamic> json) =>
       _$AccountFromJson(json);
 
@@ -117,6 +129,11 @@ class Asset extends ChangeNotifier {
   AssetInfo get info => _info ?? AssetInfo(fullAssetCode: fullAssetCode);
   set info(AssetInfo value) {
     _info = value;
+    notifyListeners();
+  }
+
+  void setAmount(Decimal newAmount) {
+    amount = newAmount;
     notifyListeners();
   }
 }
