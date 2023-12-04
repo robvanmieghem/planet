@@ -17,13 +17,18 @@ stellar_sdk.StellarSDK getSDK(bool testnet) {
 void loadAssetsForAccount(Account? account) {
   getSDK(account!.testnet).accounts.account(account.address).then((value) {
     account.exists = true;
-
     for (var balance in value.balances) {
       Asset? asset;
       switch (balance.assetType) {
         case stellar_sdk.Asset.TYPE_NATIVE:
           asset = Asset(
-              code: 'XLM', issuer: '', amount: Decimal.parse(balance.balance));
+              code: 'XLM',
+              issuer: '',
+              amount: Decimal.parse(balance.balance) -
+                  Decimal.fromInt(value.subentryCount + 2) *
+                      Decimal.fromInt(5).shift(-1),
+              testnet: account.testnet);
+
         case stellar_sdk.Asset.TYPE_CREDIT_ALPHANUM12:
         case stellar_sdk.Asset.TYPE_CREDIT_ALPHANUM4:
           asset = Asset(
@@ -34,7 +39,9 @@ void loadAssetsForAccount(Account? account) {
         default:
           continue;
       }
-
+      if (balance.sellingLiabilities != null) {
+        asset.amount -= Decimal.parse(balance.sellingLiabilities!);
+      }
       Asset? existing = account.assets.firstWhereOrNull(
           (element) => element.fullAssetCode == asset!.fullAssetCode);
       if (existing != null) {
@@ -123,7 +130,7 @@ Future<void> send(String destination, Decimal amount, Asset asset, String? memo,
   stellar_sdk.SubmitTransactionResponse response =
       await sdk.submitTransaction(transaction);
   if (!response.success) {
-    logger.e('Failed to submit payment: $response');
+    logger.e('Failed to submit payment: $response extras: ${response.extras}');
     //TODO: propagate error
   }
   loadAssetsForAccount(from);
