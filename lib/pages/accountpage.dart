@@ -75,36 +75,41 @@ class AccountPage extends StatelessWidget {
         body: Center(
             child: Consumer<Account>(
                 builder: (context, account, child) => (account.exists)
-                    ? ListView(
-                        children: [
-                          for (var asset in account.assets) ...[
-                            Card(
-                                child: ListTile(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            ChangeNotifierProvider<Asset>.value(
-                                                value: asset,
-                                                child: const AssetPage())));
-                              },
-                              title: Text(asset.info.name ?? asset.code),
-                              subtitle: Text(
-                                  '${asset.code}${asset.info.domain != null ? " ( ${asset.info.domain} )" : ""}'),
-                              trailing: Text('${asset.amount}'),
-                              leading: asset.isNative()
-                                  ? const Icon(PlanetIcon.xlmIcon)
-                                  : asset.info.image != null
-                                      ? Image(
-                                          image:
-                                              NetworkImage(asset.info.image!))
-                                      : const Icon(
-                                          Icons.radio_button_unchecked),
-                            ))
+                    ? RefreshIndicator(
+                        onRefresh: () async {
+                          loadAssetsForAccount(account);
+                        },
+                        child: ListView(
+                          children: [
+                            for (var asset in account.assets) ...[
+                              Card(
+                                  child: ListTile(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ChangeNotifierProvider<
+                                                      Asset>.value(
+                                                  value: asset,
+                                                  child: const AssetPage())));
+                                },
+                                title: Text(asset.info.name ?? asset.code),
+                                subtitle: Text(
+                                    '${asset.code}${asset.info.domain != null ? " ( ${asset.info.domain} )" : ""}'),
+                                trailing: Text('${asset.amount}'),
+                                leading: asset.isNative()
+                                    ? const Icon(PlanetIcon.xlmIcon)
+                                    : asset.info.image != null
+                                        ? Image(
+                                            image:
+                                                NetworkImage(asset.info.image!))
+                                        : const Icon(
+                                            Icons.radio_button_unchecked),
+                              ))
+                            ],
                           ],
-                        ],
-                      )
+                        ))
                     : Column(
                         children: [
                           const Text('Account does not exist'),
