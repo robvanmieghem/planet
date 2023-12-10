@@ -77,7 +77,7 @@ class AccountPage extends StatelessWidget {
                 builder: (context, account, child) => (account.exists)
                     ? RefreshIndicator(
                         onRefresh: () async {
-                          loadAssetsForAccount(account);
+                          await loadAssetsForAccount(account);
                         },
                         child: ListView(
                           children: [
@@ -125,6 +125,7 @@ class AccountPage extends StatelessWidget {
                                                           account.address)
                                                   .then((succeeded) {
                                             if (succeeded) {
+                                              //Reload amounts
                                               loadAssetsForAccount(account);
                                             }
                                             //TODO: else show it failed

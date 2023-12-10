@@ -14,8 +14,10 @@ stellar_sdk.StellarSDK getSDK(bool testnet) {
       : stellar_sdk.StellarSDK.PUBLIC;
 }
 
-void loadAssetsForAccount(Account? account) {
-  getSDK(account!.testnet).accounts.account(account.address).then((value) {
+Future<void> loadAssetsForAccount(Account? account) async {
+  try {
+    var value =
+        await getSDK(account!.testnet).accounts.account(account.address);
     account.exists = true;
     for (var balance in value.balances) {
       Asset? asset;
@@ -51,23 +53,24 @@ void loadAssetsForAccount(Account? account) {
         loadAssetInfo(asset);
       }
     }
-  }).onError<SocketException>((error, stackTrace) {
-    logger.i('Unable load assets for ${account.address} : $error');
+  } on SocketException catch (error) {
+    logger.i('Unable load assets for ${account!.address} : $error');
     //TODO: propagate to the frontend
-  }).onError<stellar_sdk.ErrorResponse>((error, stackTrace) {
+  } on stellar_sdk.ErrorResponse catch (error) {
     if (error.code == 404) {
-      account.exists = false;
+      account!.exists = false;
       return;
     }
-    logger.i('horizon responded with an error ${account.address} : $error');
+    logger.i('horizon responded with an error ${account!.address} : $error');
     //TODO: propagate to the frontend
-  }).onError((error, stackTrace) {
+  } catch (error) {
     logger.i(
-        'Unable load assets for ${account.address} (${error.runtimeType}): $error');
-  });
+        'Unable load assets for ${account!.address} (${error.runtimeType}): $error');
+    //TODO: propagate to the frontend
+  }
 }
 
-void loadAssetInfo(Asset asset) {
+void loadAssetInfo(Asset asset) async {
   if (asset.isNative()) {
     var info = AssetInfo(fullAssetCode: asset.fullAssetCode);
     info.name = "Lumens";
