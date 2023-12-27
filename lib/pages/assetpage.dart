@@ -1,5 +1,7 @@
+import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:planet/pages/sendpage.dart';
+import 'package:planet/pages/swappage.dart';
 import 'package:provider/provider.dart';
 import '../appmodel.dart';
 import '../widgets/appbar.dart';
@@ -64,7 +66,28 @@ class AssetPage extends StatelessWidget {
                                   Icon(Icons.arrow_upward)
                                 ])),
                             FilledButton.tonal(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              ChangeNotifierProvider<
+                                                      SwapPageModel>(
+                                                  create: (_) => SwapPageModel(
+                                                      fromAsset: asset,
+                                                      toAsset: Asset(
+                                                          code: "XLM",
+                                                          issuer: "",
+                                                          amount: Decimal.one)),
+                                                  child: SwapPage()))).then(
+                                      (result) {
+                                    print(result);
+                                    if (!context.mounted) return;
+                                    if (result == 'swapped') {
+                                      Navigator.pop(context);
+                                    }
+                                  });
+                                },
                                 child: const Row(children: [
                                   Text('Swap'),
                                   Icon(Icons.swap_horiz)

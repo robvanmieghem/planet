@@ -107,6 +107,12 @@ void loadAssetInfo(Asset asset) async {
   });
 }
 
+stellar_sdk.Asset toStellarSDKAsset(Asset asset) {
+  return asset.isNative()
+      ? stellar_sdk.Asset.NATIVE
+      : stellar_sdk.Asset.createNonNativeAsset(asset.code, asset.issuer);
+}
+
 Future<void> send(String destination, Decimal amount, Asset asset, String? memo,
     Account from) async {
   var sdk = getSDK(from.testnet);
@@ -115,12 +121,60 @@ Future<void> send(String destination, Decimal amount, Asset asset, String? memo,
   // Build the transaction to send 100 XLM native payment from sender to destination
   stellar_sdk.Transaction transaction = stellar_sdk.TransactionBuilder(sender)
       .addOperation(stellar_sdk.PaymentOperationBuilder(
-              destination,
-              asset.isNative()
-                  ? stellar_sdk.Asset.NATIVE
-                  : stellar_sdk.Asset.createNonNativeAsset(
-                      asset.code, asset.issuer),
-              amount.toString())
+              destination, toStellarSDKAsset(asset), amount.toString())
+          .build())
+      .build();
+
+  // Sign the transaction with the sender's key pair.
+  var kp = stellar_sdk.KeyPair.fromSecretSeed(from.secret);
+  transaction.sign(kp,
+      from.testnet ? stellar_sdk.Network.TESTNET : stellar_sdk.Network.PUBLIC);
+
+  // Submit the transaction to the stellar network.
+  stellar_sdk.SubmitTransactionResponse response =
+      await sdk.submitTransaction(transaction);
+  if (!response.success) {
+    logger.e('Failed to submit payment: $response extras: ${response.extras}');
+    //TODO: propagate error
+  }
+  loadAssetsForAccount(from);
+}
+
+Future<({Decimal receiveAmount, List<stellar_sdk.Asset> path})?>
+    findBestStrictSend(
+        Asset fromAsset, Decimal sendAmount, Asset toAsset) async {
+  var sdk = getSDK(fromAsset.testnet);
+  var requestBuilder = sdk.strictSendPaths;
+  var response = await requestBuilder
+      .sourceAsset(toStellarSDKAsset(fromAsset))
+      .sourceAmount(sendAmount.toStringAsFixed(7))
+      .destinationAssets([toStellarSDKAsset(toAsset)]).execute();
+  if (response.records == null || response.records!.isEmpty) {
+    return null;
+  }
+
+  var result = (receiveAmount: Decimal.zero, path: <stellar_sdk.Asset>[]);
+  for (var record in response.records!) {
+    var amount = Decimal.parse(record.destinationAmount);
+    if (amount > result.receiveAmount) {
+      result = (receiveAmount: amount, path: record.path);
+    }
+  }
+  return result;
+}
+
+Future<void> swap(Asset fromAsset, Decimal sendAmount, Asset toAsset,
+    Decimal receiveAmount, Decimal allowedSlippage, Account from) async {
+  var sdk = getSDK(from.testnet);
+  stellar_sdk.AccountResponse sender = await sdk.accounts.account(from.address);
+
+  stellar_sdk.Transaction transaction = stellar_sdk.TransactionBuilder(sender)
+      .addOperation(stellar_sdk.PathPaymentStrictSendOperationBuilder(
+              toStellarSDKAsset(fromAsset),
+              sendAmount.toString(),
+              from.address,
+              toStellarSDKAsset(toAsset),
+              (receiveAmount * (Decimal.one - allowedSlippage)).toString())
           .build())
       .build();
 
