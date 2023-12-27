@@ -29,7 +29,7 @@ class AppSettingsPage extends StatelessWidget {
                     builder: (context, appstate, child) => Switch(
                         value: appstate.testnet,
                         onChanged: (newvalue) {
-                          context.read<AppState>().setNetwork(newvalue);
+                          appstate.setNetwork(newvalue);
                         }))
               ],
             )

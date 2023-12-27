@@ -239,7 +239,7 @@ class SwapPage extends StatelessWidget {
                       ]))),
       floatingActionButton: Consumer<SwapPageModel>(
           builder: (context, model, child) => FloatingActionButton(
-                tooltip: 'Send',
+                tooltip: 'Swap',
                 onPressed: () {
                   if (model.validate()) {
                     showDialog(

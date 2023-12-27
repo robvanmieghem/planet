@@ -113,18 +113,40 @@ stellar_sdk.Asset toStellarSDKAsset(Asset asset) {
       : stellar_sdk.Asset.createNonNativeAsset(asset.code, asset.issuer);
 }
 
-Future<void> send(String destination, Decimal amount, Asset asset, String? memo,
-    Account from) async {
+Future<void> send(
+    String destination,
+    Decimal amount,
+    Asset asset,
+    String? memo,
+    Account from,
+    Asset? toAsset,
+    Decimal? receiveAmount,
+    List<stellar_sdk.Asset>? path) async {
   var sdk = getSDK(from.testnet);
   stellar_sdk.AccountResponse sender = await sdk.accounts.account(from.address);
 
   // Build the transaction to send 100 XLM native payment from sender to destination
-  stellar_sdk.Transaction transaction = stellar_sdk.TransactionBuilder(sender)
-      .addOperation(stellar_sdk.PaymentOperationBuilder(
-              destination, toStellarSDKAsset(asset), amount.toString())
-          .build())
-      .build();
-
+  stellar_sdk.Transaction transaction;
+  if (toAsset == null) {
+    transaction = stellar_sdk.TransactionBuilder(sender)
+        .addOperation(stellar_sdk.PaymentOperationBuilder(
+                destination, toStellarSDKAsset(asset), amount.toString())
+            .build())
+        .build();
+  } else {
+    var allowedSlippage = Decimal.parse("0.01");
+    transaction = stellar_sdk.TransactionBuilder(sender)
+        .addOperation(stellar_sdk.PathPaymentStrictSendOperationBuilder(
+                toStellarSDKAsset(asset),
+                amount.toString(),
+                destination,
+                toStellarSDKAsset(toAsset),
+                (receiveAmount! * (Decimal.one - allowedSlippage))
+                    .toStringAsFixed(7))
+            .setPath(path!)
+            .build())
+        .build();
+  }
   // Sign the transaction with the sender's key pair.
   var kp = stellar_sdk.KeyPair.fromSecretSeed(from.secret);
   transaction.sign(kp,
