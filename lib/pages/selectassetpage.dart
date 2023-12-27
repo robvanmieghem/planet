@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:planet/widgets/icons.dart';
 import 'package:provider/provider.dart';
 import '../appmodel.dart';
-import '../stellar/stellar.dart';
 import '../widgets/appbar.dart';
 
 class SelectAssetPage extends StatelessWidget {

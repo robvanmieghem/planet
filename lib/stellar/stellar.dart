@@ -163,8 +163,14 @@ Future<({Decimal receiveAmount, List<stellar_sdk.Asset> path})?>
   return result;
 }
 
-Future<void> swap(Asset fromAsset, Decimal sendAmount, Asset toAsset,
-    Decimal receiveAmount, Decimal allowedSlippage, Account from) async {
+Future<void> swap(
+    Asset fromAsset,
+    Decimal sendAmount,
+    Asset toAsset,
+    Decimal receiveAmount,
+    Decimal allowedSlippage,
+    Account from,
+    List<stellar_sdk.Asset> path) async {
   var sdk = getSDK(from.testnet);
   stellar_sdk.AccountResponse sender = await sdk.accounts.account(from.address);
 
@@ -174,7 +180,9 @@ Future<void> swap(Asset fromAsset, Decimal sendAmount, Asset toAsset,
               sendAmount.toString(),
               from.address,
               toStellarSDKAsset(toAsset),
-              (receiveAmount * (Decimal.one - allowedSlippage)).toString())
+              (receiveAmount * (Decimal.one - allowedSlippage))
+                  .toStringAsFixed(7))
+          .setPath(path)
           .build())
       .build();
 
@@ -187,7 +195,8 @@ Future<void> swap(Asset fromAsset, Decimal sendAmount, Asset toAsset,
   stellar_sdk.SubmitTransactionResponse response =
       await sdk.submitTransaction(transaction);
   if (!response.success) {
-    logger.e('Failed to submit payment: $response extras: ${response.extras}');
+    logger.e(
+        'Failed to submit transaction: ${response.toString()} extras: ${response.extras?.resultCodes?.transactionResultCode}');
     //TODO: propagate error
   }
   loadAssetsForAccount(from);

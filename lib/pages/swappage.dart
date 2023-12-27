@@ -28,21 +28,25 @@ class SwapPageModel extends ChangeNotifier {
   List<stellar_sdk.Asset>? path;
 
   Decimal? sendAmount;
+  String sendAmountString = "";
   String? sendAmountError;
   void setSendAmount(String value) {
     if (sendAmountError != null) {
       //Clear the error if a value is entered after a failed send button click
       sendAmountError = null;
     }
+    sendAmountString = value;
     sendAmount = Decimal.tryParse(value);
     if (sendAmount == null || sendAmount! == Decimal.zero) {
       receiveAmount = Decimal.zero;
+      receiveAmountString = "";
     } else {
       findBestStrictSend(fromAsset, sendAmount!, toAsset).then((value) {
         if (value == null) {
           //TODO: Show that there is no path and set in model
         } else {
           receiveAmount = value.receiveAmount;
+          receiveAmountString = receiveAmount.toString();
           path = value.path;
         }
         notifyListeners();
@@ -54,6 +58,7 @@ class SwapPageModel extends ChangeNotifier {
   }
 
   Decimal? receiveAmount;
+  String receiveAmountString = "";
   String? receiveAmountError;
   void setReceiveAmount(String value) {
     if (receiveAmountError != null) {
@@ -92,6 +97,12 @@ class SwapPage extends StatelessWidget {
   final receiveAmountController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    var model = context.read<SwapPageModel>();
+    model.addListener(() {
+      sendAmountController.text = model.sendAmountString;
+      receiveAmountController.text = model.receiveAmountString;
+    });
+
     return Scaffold(
       appBar: createSimpleAppBar(context, 'Swap'),
       body: Center(
@@ -105,8 +116,7 @@ class SwapPage extends StatelessWidget {
                             child: Row(children: [
                               Flexible(
                                   child: TextField(
-                                controller: TextEditingController(
-                                    text: model.sendAmount?.toString()),
+                                controller: sendAmountController,
                                 decoration: InputDecoration(
                                     hintText: "0.0",
                                     border: InputBorder.none,
@@ -162,8 +172,6 @@ class SwapPage extends StatelessWidget {
                             const Spacer(),
                             TextButton(
                                 onPressed: () {
-                                  sendAmountController.text =
-                                      model.fromAsset.amount.toString();
                                   model.setSendAmount(
                                       model.fromAsset.amount.toString());
                                 },
@@ -243,7 +251,8 @@ class SwapPage extends StatelessWidget {
                                 model.toAsset,
                                 model.receiveAmount!,
                                 Decimal.parse("0.01"),
-                                context.read<AppState>().currentAccount!)
+                                context.read<AppState>().currentAccount!,
+                                model.path!)
                             .then((result) {
                           Navigator.pop(context, 'swapped');
                         }),
