@@ -8,6 +8,14 @@ import 'package:collection/collection.dart';
 
 Logger logger = Logger();
 
+class StellarException implements Exception {
+  String error;
+  StellarException({required this.error});
+  StellarException.timeout() : error = "Timeout";
+  @override
+  String toString() => error;
+}
+
 stellar_sdk.StellarSDK getSDK(bool testnet) {
   return testnet
       ? stellar_sdk.StellarSDK.TESTNET
@@ -152,13 +160,8 @@ Future<void> send(
   transaction.sign(kp,
       from.testnet ? stellar_sdk.Network.TESTNET : stellar_sdk.Network.PUBLIC);
 
-  // Submit the transaction to the stellar network.
-  stellar_sdk.SubmitTransactionResponse response =
-      await sdk.submitTransaction(transaction);
-  if (!response.success) {
-    logger.e('Failed to submit payment: $response extras: ${response.extras}');
-    //TODO: propagate error
-  }
+  await submitTransaction(sdk, transaction);
+
   loadAssetsForAccount(from);
 }
 
@@ -213,13 +216,24 @@ Future<void> swap(
   transaction.sign(kp,
       from.testnet ? stellar_sdk.Network.TESTNET : stellar_sdk.Network.PUBLIC);
 
-  // Submit the transaction to the stellar network.
-  stellar_sdk.SubmitTransactionResponse response =
-      await sdk.submitTransaction(transaction);
-  if (!response.success) {
-    logger.e(
-        'Failed to submit transaction: ${response.toString()} extras: ${response.extras?.resultCodes?.transactionResultCode}');
-    //TODO: propagate error
-  }
+  await submitTransaction(sdk, transaction);
+
   loadAssetsForAccount(from);
+}
+
+Future<void> submitTransaction(
+    stellar_sdk.StellarSDK sdk, stellar_sdk.Transaction transaction) async {
+  try {
+    stellar_sdk.SubmitTransactionResponse response =
+        await sdk.submitTransaction(transaction);
+
+    if (!response.success) {
+      logger.e(
+          'Failed to submit transaction: ${response.toString()} extras: ${response.extras?.resultCodes?.transactionResultCode}');
+      //TODO: propagate error
+    }
+  } on stellar_sdk.SubmitTransactionTimeoutResponseException {
+    logger.w("Timeout while submitting transaction");
+    throw StellarException.timeout();
+  }
 }

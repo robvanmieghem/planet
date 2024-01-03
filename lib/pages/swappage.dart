@@ -255,6 +255,11 @@ class SwapPage extends StatelessWidget {
                                 model.path!)
                             .then((result) {
                           Navigator.pop(context, 'swapped');
+                        }).onError<StellarException>((error, stackTrace) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(error.toString()),
+                            showCloseIcon: true,
+                          ));
                         }),
                       ),
                     );

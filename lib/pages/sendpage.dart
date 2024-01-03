@@ -246,6 +246,11 @@ class SendPage extends StatelessWidget {
                                 model.path)
                             .then((result) {
                           Navigator.pop(context, 'sent');
+                        }).onError<StellarException>((error, stackTrace) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(error.toString()),
+                            showCloseIcon: true,
+                          ));
                         }),
                       ),
                     );
