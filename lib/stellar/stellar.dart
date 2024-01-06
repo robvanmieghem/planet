@@ -7,6 +7,9 @@ import 'package:stellar_flutter_sdk/stellar_flutter_sdk.dart' as stellar_sdk;
 import 'package:collection/collection.dart';
 
 Logger logger = Logger();
+const int maxBaseFee = 1000000; // 0.1 XLM
+//TODO: although Stellar will not take the maximum fee,
+//getting this from feestats would be better
 
 class StellarException implements Exception {
   String error;
@@ -153,6 +156,7 @@ Future<void> send(
                     .toStringAsFixed(7))
             .setPath(path!)
             .build())
+        .setMaxOperationFee(maxBaseFee)
         .build();
   }
   // Sign the transaction with the sender's key pair.
@@ -209,6 +213,7 @@ Future<void> swap(
                   .toStringAsFixed(7))
           .setPath(path)
           .build())
+      .setMaxOperationFee(maxBaseFee)
       .build();
 
   // Sign the transaction with the sender's key pair.
