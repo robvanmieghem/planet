@@ -136,29 +136,28 @@ Future<void> send(
   var sdk = getSDK(from.testnet);
   stellar_sdk.AccountResponse sender = await sdk.accounts.account(from.address);
 
-  // Build the transaction to send 100 XLM native payment from sender to destination
-  stellar_sdk.Transaction transaction;
+  var tb = stellar_sdk.TransactionBuilder(sender);
   if (toAsset == null) {
-    transaction = stellar_sdk.TransactionBuilder(sender)
-        .addOperation(stellar_sdk.PaymentOperationBuilder(
-                destination, toStellarSDKAsset(asset), amount.toString())
-            .build())
-        .build();
+    tb.addOperation(stellar_sdk.PaymentOperationBuilder(
+            destination, toStellarSDKAsset(asset), amount.toString())
+        .build());
   } else {
     var allowedSlippage = Decimal.parse("0.01");
-    transaction = stellar_sdk.TransactionBuilder(sender)
-        .addOperation(stellar_sdk.PathPaymentStrictSendOperationBuilder(
-                toStellarSDKAsset(asset),
-                amount.toString(),
-                destination,
-                toStellarSDKAsset(toAsset),
-                (receiveAmount! * (Decimal.one - allowedSlippage))
-                    .toStringAsFixed(7))
-            .setPath(path!)
-            .build())
-        .setMaxOperationFee(maxBaseFee)
-        .build();
+    tb.addOperation(stellar_sdk.PathPaymentStrictSendOperationBuilder(
+            toStellarSDKAsset(asset),
+            amount.toString(),
+            destination,
+            toStellarSDKAsset(toAsset),
+            (receiveAmount! * (Decimal.one - allowedSlippage))
+                .toStringAsFixed(7))
+        .setPath(path!)
+        .build());
   }
+
+  if (memo != null) {
+    tb.addMemo(stellar_sdk.MemoText(memo));
+  }
+  var transaction = tb.build();
   // Sign the transaction with the sender's key pair.
   var kp = stellar_sdk.KeyPair.fromSecretSeed(from.secret);
   transaction.sign(kp,
