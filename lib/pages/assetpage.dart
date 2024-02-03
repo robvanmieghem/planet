@@ -1,9 +1,11 @@
 import 'package:decimal/decimal.dart';
 import 'package:flutter/material.dart';
+import 'package:future_progress_dialog/future_progress_dialog.dart';
 import 'package:planet/pages/sendpage.dart';
 import 'package:planet/pages/swappage.dart';
 import 'package:provider/provider.dart';
 import '../appmodel.dart';
+import '../stellar/stellar.dart';
 import '../widgets/appbar.dart';
 import '../widgets/icons.dart';
 
@@ -93,6 +95,32 @@ class AssetPage extends StatelessWidget {
                                   Icon(Icons.swap_horiz)
                                 ])),
                           ]),
+                          const Spacer(),
+                          FilledButton.tonalIcon(
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => FutureProgressDialog(
+                                    removeTrustline(
+                                            asset,
+                                            context
+                                                .read<AppState>()
+                                                .currentAccount!)
+                                        .then((result) {
+                                      Navigator.pop(context, 'removed');
+                                    }).onError<StellarException>(
+                                            (error, stackTrace) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(error.toString()),
+                                        showCloseIcon: true,
+                                      ));
+                                    }),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.remove_circle),
+                              label: const Text("Remove asset"))
                         ]))));
   }
 }
