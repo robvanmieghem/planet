@@ -15,6 +15,20 @@ class StellarException implements Exception {
   String error;
   StellarException({required this.error});
   StellarException.timeout() : error = "Timeout";
+
+  factory StellarException.fromSubmitTransactionResponse(
+      stellar_sdk.SubmitTransactionResponse response) {
+    if (response.extras?.resultCodes?.transactionResultCode != null) {
+      switch (response.extras?.resultCodes?.transactionResultCode) {
+        case "tx_insufficient_fee":
+          return StellarException(error: "Insufficient fee");
+        default:
+          return StellarException(error: "Unexpected error");
+      }
+    }
+    return StellarException(error: "Unexpected error");
+  }
+
   @override
   String toString() => error;
 }
@@ -234,7 +248,7 @@ Future<void> submitTransaction(
     if (!response.success) {
       logger.e(
           'Failed to submit transaction: ${response.toString()} extras: ${response.extras?.resultCodes?.transactionResultCode}');
-      //TODO: propagate error
+      throw StellarException.fromSubmitTransactionResponse(response);
     }
   } on stellar_sdk.SubmitTransactionTimeoutResponseException {
     logger.w("Timeout while submitting transaction");
