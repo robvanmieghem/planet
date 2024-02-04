@@ -26,6 +26,7 @@ class SwapPageModel extends ChangeNotifier {
   }
 
   List<stellar_sdk.Asset>? path;
+  bool strictSend = true;
 
   Decimal? sendAmount;
   String sendAmountString = "";
@@ -45,6 +46,7 @@ class SwapPageModel extends ChangeNotifier {
         if (value == null) {
           //TODO: Show that there is no path and set in model
         } else {
+          strictSend = true;
           receiveAmount = value.receiveAmount;
           receiveAmountString = receiveAmount.toString();
           path = value.path;
@@ -65,7 +67,27 @@ class SwapPageModel extends ChangeNotifier {
       //Clear the error if a value is entered after a failed send button click
       receiveAmountError = null;
     }
+    receiveAmountString = value;
     receiveAmount = Decimal.tryParse(value);
+
+    if (receiveAmount == null || receiveAmount! == Decimal.zero) {
+      sendAmount = Decimal.zero;
+      sendAmountString = "";
+    } else {
+      findBestStrictReceive(fromAsset, receiveAmount!, toAsset).then((value) {
+        if (value == null) {
+          //TODO: Show that there is no path and set in model
+        } else {
+          strictSend = false;
+          sendAmount = value.sendAmount;
+          sendAmountString = sendAmount.toString();
+          path = value.path;
+        }
+        notifyListeners();
+      }).onError((error, stackTrace) {
+        //TODO: show error
+      });
+    }
     notifyListeners();
   }
 
@@ -252,7 +274,8 @@ class SwapPage extends StatelessWidget {
                                 model.receiveAmount!,
                                 Decimal.parse("0.01"),
                                 context.read<AppState>().currentAccount!,
-                                model.path!)
+                                model.path!,
+                                strictSend: model.strictSend)
                             .then((result) {
                           Navigator.pop(context, 'swapped');
                         }).onError<StellarException>((error, stackTrace) {

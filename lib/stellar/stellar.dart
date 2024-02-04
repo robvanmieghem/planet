@@ -225,6 +225,30 @@ Future<({Decimal receiveAmount, List<stellar_sdk.Asset> path})?>
   return result;
 }
 
+Future<({Decimal sendAmount, List<stellar_sdk.Asset> path})?>
+    findBestStrictReceive(
+        Asset fromAsset, Decimal receiveAmount, Asset toAsset) async {
+  var sdk = getSDK(fromAsset.testnet);
+  var requestBuilder = sdk.strictReceivePaths;
+  var response = await requestBuilder
+      .sourceAssets([toStellarSDKAsset(fromAsset)])
+      .destinationAmount(receiveAmount.toStringAsFixed(7))
+      .destinationAsset(toStellarSDKAsset(toAsset))
+      .execute();
+  if (response.records == null || response.records!.isEmpty) {
+    return null;
+  }
+
+  var result = (sendAmount: Decimal.zero, path: <stellar_sdk.Asset>[]);
+  for (var record in response.records!) {
+    var amount = Decimal.parse(record.sourceAmount);
+    if ((amount < result.sendAmount) || result.sendAmount == Decimal.zero) {
+      result = (sendAmount: amount, path: record.path);
+    }
+  }
+  return result;
+}
+
 Future<void> swap(
     Asset fromAsset,
     Decimal sendAmount,
@@ -232,22 +256,35 @@ Future<void> swap(
     Decimal receiveAmount,
     Decimal allowedSlippage,
     Account from,
-    List<stellar_sdk.Asset> path) async {
+    List<stellar_sdk.Asset> path,
+    {bool strictSend = true}) async {
   var sdk = getSDK(from.testnet);
   stellar_sdk.AccountResponse sender = await sdk.accounts.account(from.address);
 
-  stellar_sdk.Transaction transaction = stellar_sdk.TransactionBuilder(sender)
-      .addOperation(stellar_sdk.PathPaymentStrictSendOperationBuilder(
-              toStellarSDKAsset(fromAsset),
-              sendAmount.toString(),
-              from.address,
-              toStellarSDKAsset(toAsset),
-              (receiveAmount * (Decimal.one - allowedSlippage))
-                  .toStringAsFixed(7))
-          .setPath(path)
-          .build())
-      .setMaxOperationFee(maxBaseFee)
-      .build();
+  var tb = stellar_sdk.TransactionBuilder(sender);
+  if (strictSend) {
+    tb.addOperation(stellar_sdk.PathPaymentStrictSendOperationBuilder(
+            toStellarSDKAsset(fromAsset),
+            sendAmount.toString(),
+            from.address,
+            toStellarSDKAsset(toAsset),
+            (receiveAmount * (Decimal.one - allowedSlippage))
+                .toStringAsFixed(7))
+        .setPath(path)
+        .build());
+  } else {
+    tb.addOperation(stellar_sdk.PathPaymentStrictReceiveOperationBuilder(
+            toStellarSDKAsset(fromAsset),
+            (sendAmount * (Decimal.one + allowedSlippage)).toStringAsFixed(7),
+            from.address,
+            toStellarSDKAsset(toAsset),
+            receiveAmount.toString())
+        .setPath(path)
+        .build());
+  }
+  tb.setMaxOperationFee(maxBaseFee);
+
+  var transaction = tb.build();
 
   // Sign the transaction with the sender's key pair.
   var kp = stellar_sdk.KeyPair.fromSecretSeed(from.secret);
