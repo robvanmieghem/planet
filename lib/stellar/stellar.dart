@@ -44,6 +44,7 @@ Future<void> loadAssetsForAccount(Account? account) async {
     var value =
         await getSDK(account!.testnet).accounts.account(account.address);
     account.exists = true;
+    List<Asset> unseenAccountAssets = account.assets.toList();
     for (var balance in value.balances) {
       Asset? asset;
       switch (balance.assetType) {
@@ -66,6 +67,8 @@ Future<void> loadAssetsForAccount(Account? account) async {
         default:
           continue;
       }
+      unseenAccountAssets.removeWhere(
+          (element) => element.fullAssetCode == asset!.fullAssetCode);
       if (balance.sellingLiabilities != null) {
         asset.amount -= Decimal.parse(balance.sellingLiabilities!);
       }
@@ -76,6 +79,9 @@ Future<void> loadAssetsForAccount(Account? account) async {
       } else {
         account.addAsset(asset);
         loadAssetInfo(asset);
+      }
+      for (var assetNoLongerTrusted in unseenAccountAssets) {
+        account.removeAsset(assetNoLongerTrusted);
       }
     }
   } on SocketException catch (error) {

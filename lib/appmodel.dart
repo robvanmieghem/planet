@@ -106,6 +106,11 @@ class Account extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeAsset(Asset value) {
+    _assets.remove(value);
+    notifyListeners();
+  }
+
   factory Account.fromJson(Map<String, dynamic> json) =>
       _$AccountFromJson(json);
 
