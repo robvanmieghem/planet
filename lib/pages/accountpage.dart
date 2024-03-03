@@ -7,6 +7,7 @@ import '../appmodel.dart';
 import '../stellar/stellar.dart';
 import '../widgets/appbar.dart';
 import 'accountlist.dart';
+import 'addassetpage.dart';
 import 'assetpage.dart';
 import 'receive.dart';
 
@@ -108,6 +109,23 @@ class AccountPage extends StatelessWidget {
                                             Icons.radio_button_unchecked),
                               ))
                             ],
+                            Card(
+                                child: ListTile(
+                              leading: const Icon(Icons.add),
+                              title: const Text('Add Asset'),
+                              titleAlignment: ListTileTitleAlignment.center,
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            ChangeNotifierProvider<
+                                                    AddAssetPageModel>(
+                                                create: (_) =>
+                                                    AddAssetPageModel(),
+                                                child: const AddAssetPage())));
+                              },
+                            )),
                           ],
                         ))
                     : Column(

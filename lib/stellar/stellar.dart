@@ -164,6 +164,27 @@ Future<void> removeTrustline(Asset asset, Account from) async {
   loadAssetsForAccount(from);
 }
 
+Future<void> addTrustline(String assetCode, String issuer, Account from) async {
+  var sdk = getSDK(from.testnet);
+  stellar_sdk.AccountResponse sender = await sdk.accounts.account(from.address);
+
+  var tb = stellar_sdk.TransactionBuilder(sender);
+  tb.addOperation(stellar_sdk.ChangeTrustOperation(
+      stellar_sdk.Asset.createNonNativeAsset(assetCode, issuer),
+      (1 << 53).toString()));
+  tb.setMaxOperationFee(maxBaseFee);
+
+  var transaction = tb.build();
+  // Sign the transaction with the sender's key pair.
+  var kp = stellar_sdk.KeyPair.fromSecretSeed(from.secret);
+  transaction.sign(kp,
+      from.testnet ? stellar_sdk.Network.TESTNET : stellar_sdk.Network.PUBLIC);
+
+  await submitTransaction(sdk, transaction);
+
+  loadAssetsForAccount(from);
+}
+
 Future<void> send(
     String destination,
     Decimal amount,
