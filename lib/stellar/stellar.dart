@@ -218,6 +218,8 @@ Future<void> send(
   if (memo != null) {
     tb.addMemo(stellar_sdk.MemoText(memo));
   }
+
+  tb.setMaxOperationFee(maxBaseFee);
   var transaction = tb.build();
   // Sign the transaction with the sender's key pair.
   var kp = stellar_sdk.KeyPair.fromSecretSeed(from.secret);
@@ -331,7 +333,7 @@ Future<void> submitTransaction(
 
     if (!response.success) {
       logger.e(
-          'Failed to submit transaction: ${response.toString()} extras: ${response.extras?.resultCodes?.transactionResultCode}');
+          'Failed to submit transaction: ${response.toString()} transactionresult: ${response.extras?.resultCodes?.transactionResultCode}\n operationresults: ${response.extras?.resultCodes?.operationsResultCodes} ');
       throw StellarException.fromSubmitTransactionResponse(response);
     }
   } on stellar_sdk.SubmitTransactionTimeoutResponseException {
